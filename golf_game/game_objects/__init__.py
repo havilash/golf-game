@@ -1,2 +1,2 @@
-from . import objects
+from .objects import *
 from . import physics

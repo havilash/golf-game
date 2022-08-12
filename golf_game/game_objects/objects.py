@@ -6,19 +6,18 @@ from constants import *
 
 
 class GameObject:
-    size = None
-    surface = None
+    size: tuple = None
+    surface: pygame.Surface = None
 
     def __init__(self, pos):
         self.x, self.y = pos
 
         self.mask = pygame.mask.from_surface(self.surface)
+        self.rect = self.surface.get_rect()
 
     def draw(self, win: pygame.Surface):
         win.blit(self.surface, (self.x, self.y))
 
-    def get_mask(self):
-        return self.mask
 
 class test_obstacle(GameObject):
 

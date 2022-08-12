@@ -1,36 +1,47 @@
 import sys
 
+from constants import *
 from utils import *
-from game_objects import physics
-from game_objects import objects
+import game_objects
 
 
-
-def draw(win: pygame.Surface, bg_surface, game_surface, ball, test_obstacle):
+def draw(win: pygame.Surface, bg_surface, game_surface, level_surface, ball, test_obstacles):
+    # reset surfaces
     bg_surface.fill("light blue")
     game_surface.fill((0, 0, 0, 0))
+    level_surface.fill((0, 0, 0, 0))
 
-    test_obstacle.draw(game_surface)
+    # draw objects
+    for test_obstacle in test_obstacles:
+        test_obstacle.draw(level_surface)
+
+    # draw level, ball
+    game_surface.blit(level_surface, (0, 0))
     ball.draw(game_surface)
 
+    # draw window
     win.blit(bg_surface, (0, 0))
     win.blit(game_surface, (0, 0))
 
+    # update
     pygame.display.update()
 
 
 def main():
-    WIN = pygame.display.set_mode(WIN_SIZE)
+    win = pygame.display.set_mode(WIN_SIZE)
     pygame.display.set_caption("Golf Game")
 
-    BG_SURFACE = pygame.Surface(WIN_SIZE)
-    GAME_SURFACE = pygame.Surface(WIN_SIZE, pygame.SRCALPHA)
+    bg_surface = pygame.Surface(WIN_SIZE)
+    game_surface = pygame.Surface(WIN_SIZE, pygame.SRCALPHA)
 
     crnt_level = 0
+    level_surface = pygame.Surface(WIN_SIZE, pygame.SRCALPHA)
 
-    test_obstacle = objects.test_obstacle((10, 550), (780, 30))
-    # test_obstacle = objects.test_obstacle((100, 100), (10, 400))
-    ball = physics.Ball((700, 100))
+    test_obstacles = [
+        game_objects.test_obstacle((10, 550), (780, 30)),
+        game_objects.test_obstacle((100, 100), (10, 400))
+    ]
+    ball = game_objects.physics.Ball((700, 100))
 
     is_running = True
     clock = pygame.time.Clock()
@@ -43,9 +54,9 @@ def main():
                 is_running = False
                 break
 
-        ball.update(test_obstacle)
+        ball.update(clock.get_fps(), test_obstacles)
 
-        draw(WIN, BG_SURFACE, GAME_SURFACE, ball, test_obstacle)
+        draw(win, bg_surface, game_surface, level_surface, ball, test_obstacles)
 
     pygame.quit()
     sys.exit()
