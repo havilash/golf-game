@@ -31,6 +31,27 @@ class Detector(GameObject):
     def collide(self, obstacle):
         return collide(self, obstacle)
 
+    @staticmethod
+    def find_detector_positions(obj, amount):
+        detector_positions = []
+
+        perimeter = 2 * (obj.size[0] + obj.size[1])
+        spacing = int(perimeter / amount)
+
+        for i in range(int(obj.size[0] / 2), perimeter + int(obj.size[0] / 2), spacing):
+            if i > obj.size[0] + obj.size[1] + obj.size[0]:
+                val = (0, obj.size[1] - (i - (obj.size[0] + obj.size[1] + obj.size[0])))
+            elif i > obj.size[0] + obj.size[1]:
+                val = (obj.size[0] - (i - (obj.size[0] + obj.size[1])), obj.size[1])
+            elif i > obj.size[0]:
+                val = (obj.size[0], i - obj.size[0])
+            else:
+                val = (i, 0)
+
+            detector_positions.append(val)
+
+        return detector_positions
+
 
 class Obstacle(GameObject):
     bounciness = 0
@@ -39,4 +60,3 @@ class Obstacle(GameObject):
         self.size = size
         self.surface = pygame.Surface(self.size)
         super().__init__(pos)
-

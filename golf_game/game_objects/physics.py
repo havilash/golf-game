@@ -9,7 +9,7 @@ from . import objects
 
 
 class Physic(objects.GameObject):
-    GRAVITY = 9.81*100  # gravity * meter (in pixels)
+    GRAVITY = 9.81 * 100  # gravity * meter (in pixels)
     AIR_RESISTANCE = 0.99
     fps = FPS
 
@@ -22,12 +22,10 @@ class Physic(objects.GameObject):
             "vy": 0,  # velocity y
         }
 
-        self.detectors = {
-            "n": objects.Detector((0, 0)),
-            "e": objects.Detector((0, 0)),
-            "s": objects.Detector((0, 0)),
-            "w": objects.Detector((0, 0)),
-        }
+        self.detectors = [
+            objects.Detector((0, 0)) for i in range(8)  # divisible by 4
+        ]
+        self.detector_positions = objects.Detector.find_detector_positions(self, len(self.detectors))
 
         self.frame_count = 0.0
 
@@ -35,60 +33,59 @@ class Physic(objects.GameObject):
     def update_fps(cls, fps):
         cls.fps = int(fps) if fps != 0 else FPS
 
-    def update(self, obstacle=None):
-        self.frame_count += 1/self.fps
+    def update(self, obstacle=None, obstacle_list=None):
+        self.frame_count += 1 / self.fps
 
         if obstacle:
-            collision = collide(self, obstacle)
-            if collision:
+            if collide(self, obstacle):
                 kwargs = {"bounciness": obstacle.bounciness, "friction": obstacle.friction}
                 self.bounce(obstacle, **{k: v for k, v in kwargs.items() if v is not None})  # kwargs without None
 
+        if obstacle_list:
+            for obj in obstacle_list:
+                if collide(self, obj):
+                    kwargs = {"bounciness": obj.bounciness, "friction": obj.friction}
+                    self.bounce(obj, **{k: v for k, v in kwargs.items() if v is not None})  # kwargs without None
+
         # https://www.omnicalculator.com/physics/projectile-motion#:~:text=The%20equation%20for%20the%20distance,is%20acceleration%20due%20to%20gravity.
         mx = (self.vel["vx"] * self.frame_count) * self.AIR_RESISTANCE
-        my = (self.vel["vy"] * self.frame_count - self.GRAVITY * self.frame_count**2 / 2) * self.AIR_RESISTANCE
-        if collision:
-            print(mx, my)
+        my = (self.vel["vy"] * self.frame_count - self.GRAVITY * self.frame_count ** 2 / 2) * self.AIR_RESISTANCE
 
         self.x = int(self.vel["w"] - mx)
         self.y = int(self.vel["h"] - my)
-        if collision:
-            print()
 
     def bounce(self, obstacle, bounciness=0.8, friction=0.9):
-        cx, cy = self.x + int(self.size[0]/2), self.y + int(self.size[1]/2)
+        cx, cy = self.x + int(self.size[0] / 2), self.y + int(self.size[1] / 2)
 
-        points = [(cx, self.y), (self.x + self.size[0], cy), (cx, self.y + self.size[1]), (self.x, cy)]
-        points_collided = []
-        for i, val in enumerate(self.detectors.items()):
-            key, detector = val
-            detector.x, detector.y = points[i]
+        is_collided = []
+        for i, detector in enumerate(self.detectors):
+            detector.x, detector.y = self.x + self.detector_positions[i][0], self.y + self.detector_positions[i][1]
             poi = detector.collide(obstacle)
-            points_collided.append(poi)
+            is_collided.append(poi)
 
-        dirnx, dirny = 1, 1
-        if points_collided[0]:
-            dirnx, dirny = 1, -1
-            self.y += 1
-        elif points_collided[1]:
-            dirnx, dirny = -1, 1
-            self.x += -1
-        elif points_collided[2]:
-            dirnx, dirny = 1, -1
-            self.y += -1
-        elif points_collided[3]:
-            dirnx, dirny = -1, 1
-            self.x += 1
+        # get detector positions which collided
+        collided_positions = [self.detector_positions[i] for i, c in enumerate(is_collided) if c]
+        collided_positions_x = [i[0] for i in collided_positions]
+        collided_positions_y = [i[1] for i in collided_positions]
+        collided_average_x = sum(collided_positions_x) / len(collided_positions_x)
+        collided_average_y = sum(collided_positions_y) / len(collided_positions_y)
+
+        dirnx = np.interp(collided_average_x, (0, 12), (-1, 1))
+        dirny = np.interp(collided_average_y, (0, 12), (-1, 1))
+
+        self.x += -dirnx
+        self.y += -dirny
+
+        dirnx = np.interp(abs(dirnx), (0, 1), (1, -1))
+        dirny = np.interp(abs(dirny), (0, 1), (1, -1))
 
         mx = self.vel["vx"] * bounciness * friction
-        my = (self.vel["vy"] - self.GRAVITY * (self.frame_count-1/self.fps)) * bounciness * friction
+        my = (self.vel["vy"] - self.GRAVITY * (self.frame_count - 1 / self.fps)) * bounciness * friction
 
-        self.set_velocity_data(mx*dirnx, my*dirny)
-
-        print(self.vel)
+        self.set_velocity_data(mx * dirnx, my * dirny)
 
     def set_velocity_data(self, vx, vy):
-        self.frame_count = 1/self.fps
+        self.frame_count = 1 / self.fps
         self.vel = {
             "h": self.y,  # initial height
             "w": self.x,  # initial width
@@ -97,7 +94,7 @@ class Physic(objects.GameObject):
         }
 
     def calculate_velocity_data(self, v, a):  # initial velocity, alpha (angle), initial height
-        self.frame_count = 1/self.fps
+        self.frame_count = 1 / self.fps
         self.vel = {
             "h": self.y,  # initial height
             "w": self.x,  # initial width
@@ -113,5 +110,3 @@ class Ball(Physic):
 
     def shoot(self, v, a):
         self.calculate_velocity_data(v, a)
-
-

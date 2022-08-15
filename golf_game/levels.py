@@ -30,6 +30,7 @@ class Level2(Level):
         self.surface = pygame.Surface(WIN_SIZE, pygame.SRCALPHA)
         super().__init__()
 
+
 class Level3(Level):
     def __init__(self):
         self.surface = pygame.Surface(WIN_SIZE, pygame.SRCALPHA)

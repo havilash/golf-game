@@ -23,11 +23,6 @@ def draw(win: pygame.Surface, bg_surface, game_surface, level, ball, is_shooting
         mx, my = pygame.mouse.get_pos()
         pygame.draw.line(game_surface, "black", (ball.x + ball.size[0]/2, ball.y + ball.size[1]/2), (mx, my), 2)
 
-    # cx, cy = ball.x + int(ball.size[0] / 2), ball.y + int(ball.size[1] / 2)
-    # points = [(cx, ball.y), (cx, ball.y + ball.size[1]), (ball.x, cy), (ball.x + ball.size[0], cy)]
-    # for point in points:
-    #     pygame.draw.rect(game_surface, "black", pygame.Rect(point[0], point[1], 5, 5))
-
     # draw window
     win.blit(bg_surface, (0, 0))
     win.blit(game_surface, (0, 0))
