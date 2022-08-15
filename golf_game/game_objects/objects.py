@@ -1,13 +1,15 @@
 import pygame
 import sys
 
-sys.path.append("..")
-from constants import *
+from golf_game.constants import *
+from golf_game.utils import *
 
 
 class GameObject:
     size: tuple = None
     surface: pygame.Surface = None
+    bounciness = None
+    friction = None
 
     def __init__(self, pos):
         self.x, self.y = pos
@@ -19,7 +21,19 @@ class GameObject:
         win.blit(self.surface, (self.x, self.y))
 
 
-class test_obstacle(GameObject):
+class Detector(GameObject):
+    size = (1, 1)
+    surface = pygame.Surface(size)
+
+    def __init__(self, pos):
+        super().__init__(pos)
+
+    def collide(self, obstacle):
+        return collide(self, obstacle)
+
+
+class Obstacle(GameObject):
+    bounciness = 0
 
     def __init__(self, pos, size):
         self.size = size

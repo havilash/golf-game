@@ -3,80 +3,91 @@ import pygame
 import numpy as np
 import sys
 
-sys.path.append("../")
-from constants import *
-from .objects import GameObject
+from golf_game.constants import *
+from golf_game.utils import *
+from . import objects
 
 
-
-class Physic(GameObject):
+class Physic(objects.GameObject):
     GRAVITY = 9.81*100  # gravity * meter (in pixels)
+    AIR_RESISTANCE = 0.99
+    fps = FPS
 
     def __init__(self, pos):
         super().__init__(pos)
         self.vel = {
             "h": self.y,  # initial height
             "w": self.x,  # initial width
-            "vx": 600,  # velocity x
-            "vy": 300,  # velocity y
+            "vx": 0,  # velocity x
+            "vy": 0,  # velocity y
         }
 
-        self.fps = 1
+        self.detectors = {
+            "n": objects.Detector((0, 0)),
+            "e": objects.Detector((0, 0)),
+            "s": objects.Detector((0, 0)),
+            "w": objects.Detector((0, 0)),
+        }
+
         self.frame_count = 0.0
 
-    def update(self, fps, obstacle=None):
-        self.fps = int(fps) if fps != 0 else FPS
-        print(self.fps)
+    @classmethod
+    def update_fps(cls, fps):
+        cls.fps = int(fps) if fps != 0 else FPS
+
+    def update(self, obstacle=None):
         self.frame_count += 1/self.fps
 
         if obstacle:
-            for o in obstacle:
-                collision = self.collide(o)
-                if collision:
-                    print(collision)
-                    self.bounce(collision)
+            collision = collide(self, obstacle)
+            if collision:
+                kwargs = {"bounciness": obstacle.bounciness, "friction": obstacle.friction}
+                self.bounce(obstacle, **{k: v for k, v in kwargs.items() if v is not None})  # kwargs without None
 
         # https://www.omnicalculator.com/physics/projectile-motion#:~:text=The%20equation%20for%20the%20distance,is%20acceleration%20due%20to%20gravity.
-        mx = self.vel["vx"] * self.frame_count
-        my = (
-            self.vel["vy"] * self.frame_count - self.GRAVITY * self.frame_count**2 / 2
-        )
-        # print(mx, my)
-        # print(self.vel, "\n")
+        mx = (self.vel["vx"] * self.frame_count) * self.AIR_RESISTANCE
+        my = (self.vel["vy"] * self.frame_count - self.GRAVITY * self.frame_count**2 / 2) * self.AIR_RESISTANCE
+        if collision:
+            print(mx, my)
 
-        self.x = self.vel["w"] - mx
-        self.y = self.vel["h"] - my
+        self.x = int(self.vel["w"] - mx)
+        self.y = int(self.vel["h"] - my)
+        if collision:
+            print()
 
-    def bounce(self, poi):
-        px, py = poi
-        px = np.interp(px, (0, self.size[0]), (-1, 1))
-        py = np.interp(py, (0, self.size[1]), (-1, 1))
+    def bounce(self, obstacle, bounciness=0.8, friction=0.9):
+        cx, cy = self.x + int(self.size[0]/2), self.y + int(self.size[1]/2)
 
-        px = abs(px)/px if px != 0 else 0
-        py = abs(py)/py if py != 0 else 0
+        points = [(cx, self.y), (self.x + self.size[0], cy), (cx, self.y + self.size[1]), (self.x, cy)]
+        points_collided = []
+        for i, val in enumerate(self.detectors.items()):
+            key, detector = val
+            detector.x, detector.y = points[i]
+            poi = detector.collide(obstacle)
+            points_collided.append(poi)
 
-        print(px, py)
+        dirnx, dirny = 1, 1
+        if points_collided[0]:
+            dirnx, dirny = 1, -1
+            self.y += 1
+        elif points_collided[1]:
+            dirnx, dirny = -1, 1
+            self.x += -1
+        elif points_collided[2]:
+            dirnx, dirny = 1, -1
+            self.y += -1
+        elif points_collided[3]:
+            dirnx, dirny = -1, 1
+            self.x += 1
 
-        # self.x -= 1*-px
-        # self.y -= 1*-py
-        # TODO  https://stackoverflow.com/questions/66744421/pygame-vector2-reflect-not-working-when-i-pass-an-argument
-        mx = self.vel["vx"]
-        my = self.vel["vy"] - self.GRAVITY * self.frame_count ** 2 / 2
+        mx = self.vel["vx"] * bounciness * friction
+        my = (self.vel["vy"] - self.GRAVITY * (self.frame_count-1/self.fps)) * bounciness * friction
 
-        print("----------------------------------------------------", mx*px, my*py)
+        self.set_velocity_data(mx*dirnx, my*dirny)
 
-        self.set_velocity(mx*-px, my*-py)
+        print(self.vel)
 
-    def collide(self, obstacle):
-        mask = obstacle.mask
-        offset = (obstacle.x - self.x, obstacle.y - round(self.y))
-        poi = self.mask.overlap(mask, offset)  # point of intercept
-
-        if poi:
-            return poi
-        return False
-
-    def set_velocity(self, vx, vy):
+    def set_velocity_data(self, vx, vy):
         self.frame_count = 1/self.fps
         self.vel = {
             "h": self.y,  # initial height
@@ -85,13 +96,13 @@ class Physic(GameObject):
             "vy": vy,  # velocity y
         }
 
-    def calculate_velocity(self, v, a):  # initial velocity, alpha (angle), initial height
+    def calculate_velocity_data(self, v, a):  # initial velocity, alpha (angle), initial height
         self.frame_count = 1/self.fps
         self.vel = {
             "h": self.y,  # initial height
             "w": self.x,  # initial width
-            "vx": v * math.cos(a),  # velocity x
-            "vy": v * math.sin(a),  # velocity y
+            "vx": v * math.cos(math.radians(a)),  # velocity x
+            "vy": v * math.sin(math.radians(a)),  # velocity y
         }
 
 
@@ -101,6 +112,6 @@ class Ball(Physic):
     pygame.draw.circle(surface, "red", (size[0] / 2, size[1] / 2), size[0] / 2)
 
     def shoot(self, v, a):
-        self.calculate_velocity(v, a)
+        self.calculate_velocity_data(v, a)
 
 
