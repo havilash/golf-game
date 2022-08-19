@@ -21,7 +21,7 @@ def draw(win: pygame.Surface, bg_surface, game_surface, level, ball, is_shooting
     # draw objects
     if is_shooting_line:
         mx, my = pygame.mouse.get_pos()
-        pygame.draw.line(game_surface, "black", (ball.x + ball.size[0]/2, ball.y + ball.size[1]/2), (mx, my), 2)
+        pygame.draw.line(game_surface, "black", (ball.x + ball.size[0] / 2, ball.y + ball.size[1] / 2), (mx, my), 2)
 
     # draw window
     win.blit(bg_surface, (0, 0))
@@ -56,7 +56,7 @@ def main():
 
     while is_running:
         time_passed = clock.tick(FPS)
-        game_objects.physics.Physic.update_fps(clock.get_fps())
+        game_objects.GameObject.update_fps(clock.get_fps())
         mpos = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
@@ -75,12 +75,12 @@ def main():
                     is_shooting = False
 
                     # distance
-                    x1, y1 = (ball.x + ball.size[0]/2, ball.y + ball.size[1]/2)
+                    x1, y1 = (ball.x + ball.size[0] / 2, ball.y + ball.size[1] / 2)
                     x2, y2 = mpos
-                    dist = calculate_distance((x1, y1), (x2, y2))*5
+                    dist = calculate_distance((x1, y1), (x2, y2)) * 5
 
                     # alpha angle
-                    alpha = np.interp(math.degrees(math.atan2((y2-y1),(x2-x1))), (-180, 180), (0, 360))
+                    alpha = np.interp(math.degrees(math.atan2((y2 - y1), (x2 - x1))), (-180, 180), (0, 360))
                     ball.calculate_velocity_data(dist, alpha)
 
         if is_shooting is False:

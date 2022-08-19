@@ -11,7 +11,6 @@ from . import objects
 class Physic(objects.GameObject):
     GRAVITY = 9.81 * 100  # gravity * meter (in pixels)
     AIR_RESISTANCE = 0.99
-    fps = FPS
 
     def __init__(self, pos):
         super().__init__(pos)
@@ -23,15 +22,11 @@ class Physic(objects.GameObject):
         }
 
         self.detectors = [
-            objects.Detector((0, 0)) for i in range(8)  # divisible by 4
+            objects.Detector((0, 0)) for i in range(4)  # divisible by 4
         ]
         self.detector_positions = objects.Detector.find_detector_positions(self, len(self.detectors))
 
         self.frame_count = 0.0
-
-    @classmethod
-    def update_fps(cls, fps):
-        cls.fps = int(fps) if fps != 0 else FPS
 
     def update(self, obstacle=None, obstacle_list=None):
         self.frame_count += 1 / self.fps
@@ -63,21 +58,37 @@ class Physic(objects.GameObject):
             poi = detector.collide(obstacle)
             is_collided.append(poi)
 
+        dirnx, dirny = 1, 1
+        if is_collided[0]:
+            dirnx, dirny = 1, -1
+            self.y += 1
+        elif is_collided[1]:
+            dirnx, dirny = -1, 1
+            self.x += -1
+        elif is_collided[2]:
+            dirnx, dirny = 1, -1
+            self.y += -1
+        elif is_collided[3]:
+            dirnx, dirny = -1, 1
+            self.x += 1
+
         # get detector positions which collided
-        collided_positions = [self.detector_positions[i] for i, c in enumerate(is_collided) if c]
-        collided_positions_x = [i[0] for i in collided_positions]
-        collided_positions_y = [i[1] for i in collided_positions]
-        collided_average_x = sum(collided_positions_x) / len(collided_positions_x)
-        collided_average_y = sum(collided_positions_y) / len(collided_positions_y)
-
-        dirnx = np.interp(collided_average_x, (0, 12), (-1, 1))
-        dirny = np.interp(collided_average_y, (0, 12), (-1, 1))
-
-        self.x += -dirnx
-        self.y += -dirny
-
-        dirnx = np.interp(abs(dirnx), (0, 1), (1, -1))
-        dirny = np.interp(abs(dirny), (0, 1), (1, -1))
+        # collided_positions = [self.detector_positions[i] for i, c in enumerate(is_collided) if c]
+        # collided_positions_x = [i[0] for i in collided_positions]
+        # collided_positions_y = [i[1] for i in collided_positions]
+        # collided_average_x = sum(collided_positions_x) / len(collided_positions_x)
+        # collided_average_y = sum(collided_positions_y) / len(collided_positions_y)
+        #
+        # dirnx = np.interp(collided_average_x, (0, self.size[0]), (-1, 1))
+        # dirny = np.interp(collided_average_y, (0, self.size[1]), (-1, 1))
+        #
+        # self.x += -dirnx
+        # self.y += -dirny
+        #
+        # dirnx = np.interp(abs(dirnx), (0, 1), (1, -1))
+        # dirny = np.interp(abs(dirny), (0, 1), (1, -1))
+        # dirnx = 1 if dirnx > 0 else -1
+        # dirny = 1 if dirny > 0 else -1
 
         mx = self.vel["vx"] * bounciness * friction
         my = (self.vel["vy"] - self.GRAVITY * (self.frame_count - 1 / self.fps)) * bounciness * friction

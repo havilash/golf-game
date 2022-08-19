@@ -6,12 +6,23 @@ import game_objects
 
 class Level(game_objects.GameObject):
     size = WIN_SIZE
+    startpos = None
+    endpos = None
 
     def __init__(self):
+        self.draw_start()
+        self.draw_end()
         super().__init__((0, 0))
+
+    def draw_start(self):
+        pass
+
+    def draw_end(self):
+        pass
 
 
 class Level1(Level):
+
     def __init__(self):
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         test_obstacles = [

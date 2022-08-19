@@ -7,6 +7,7 @@ from golf_game.utils import *
 
 class GameObject:
     size: tuple = None
+    fps = FPS
     surface: pygame.Surface = None
     bounciness = None
     friction = None
@@ -19,6 +20,10 @@ class GameObject:
 
     def draw(self, win: pygame.Surface):
         win.blit(self.surface, (self.x, self.y))
+
+    @classmethod
+    def update_fps(cls, fps):
+        cls.fps = int(fps) if fps != 0 else FPS
 
 
 class Detector(GameObject):
