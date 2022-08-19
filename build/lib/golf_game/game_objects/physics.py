@@ -22,7 +22,7 @@ class Physic(objects.GameObject):
         }
 
         self.detectors = [
-            objects.Detector((0, 0)) for i in range(4)  # divisible by 4
+            objects.Detector((0, 0)) for i in range(8)  # divisible by 4
         ]
         self.detector_positions = objects.Detector.find_detector_positions(self, len(self.detectors))
 
@@ -54,23 +54,25 @@ class Physic(objects.GameObject):
 
         is_collided = []
         for i, detector in enumerate(self.detectors):
-            detector.update_position(self.x + self.detector_positions[i][0], self.y + self.detector_positions[i][1])
+            detector.x, detector.y = self.x + self.detector_positions[i][0], self.y + self.detector_positions[i][1]
             poi = detector.collide(obstacle)
             is_collided.append(poi)
 
-        dirnx, dirny = 1, 1
-        if is_collided[0]:
-            dirnx, dirny = 1, -1
-            self.y += 1
-        elif is_collided[1]:
-            dirnx, dirny = -1, 1
-            self.x += -1
-        elif is_collided[2]:
-            dirnx, dirny = 1, -1
-            self.y += -1
-        elif is_collided[3]:
-            dirnx, dirny = -1, 1
-            self.x += 1
+        # get detector positions which collided
+        collided_positions = [self.detector_positions[i] for i, c in enumerate(is_collided) if c]
+        collided_positions_x = [i[0] for i in collided_positions]
+        collided_positions_y = [i[1] for i in collided_positions]
+        collided_average_x = sum(collided_positions_x) / len(collided_positions_x)
+        collided_average_y = sum(collided_positions_y) / len(collided_positions_y)
+
+        dirnx = np.interp(collided_average_x, (0, 12), (-1, 1))
+        dirny = np.interp(collided_average_y, (0, 12), (-1, 1))
+
+        self.x += -dirnx
+        self.y += -dirny
+
+        dirnx = np.interp(abs(dirnx), (0, 1), (1, -1))
+        dirny = np.interp(abs(dirny), (0, 1), (1, -1))
 
         mx = self.vel["vx"] * bounciness * friction
         my = (self.vel["vy"] - self.GRAVITY * (self.frame_count - 1 / self.fps)) * bounciness * friction

@@ -36,9 +36,6 @@ class Detector(GameObject):
     def collide(self, obstacle):
         return collide(self, obstacle)
 
-    def update_position(self, x, y):
-        self.x, self.y = x, y
-
     @staticmethod
     def find_detector_positions(obj, amount):
         detector_positions = []
