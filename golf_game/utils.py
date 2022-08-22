@@ -20,3 +20,6 @@ def collide(obj1, obj2):
         return poi
     return False
 
+
+def load_image(path):  # scale 4 times bigger
+    return pygame.transform.scale2x(pygame.transform.scale2x(pygame.image.load(path)))

@@ -35,12 +35,12 @@ class Physic(objects.GameObject):
             if collide(self, obstacle):
                 kwargs = {"bounciness": obstacle.bounciness, "friction": obstacle.friction}
                 self.bounce(obstacle, **{k: v for k, v in kwargs.items() if v is not None})  # kwargs without None
-
-        if obstacle_list:
+        elif obstacle_list:
             for obj in obstacle_list:
                 if collide(self, obj):
                     kwargs = {"bounciness": obj.bounciness, "friction": obj.friction}
                     self.bounce(obj, **{k: v for k, v in kwargs.items() if v is not None})  # kwargs without None
+                    break
 
         # https://www.omnicalculator.com/physics/projectile-motion#:~:text=The%20equation%20for%20the%20distance,is%20acceleration%20due%20to%20gravity.
         mx = (self.vel["vx"] * self.frame_count) * self.AIR_RESISTANCE

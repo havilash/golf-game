@@ -10,9 +10,17 @@ class Level(game_objects.GameObject):
     endpos = None
 
     def __init__(self):
+        self.x, self.y = (0, 0)
+
         self.draw_start()
         self.draw_end()
-        super().__init__((0, 0))
+
+    def __iter__(self):
+        return iter(self.surfaces)
+
+    def draw(self, win: pygame.Surface):
+        for obj in self.surfaces:
+            obj.draw(win)
 
     def draw_start(self):
         pass
@@ -24,14 +32,11 @@ class Level(game_objects.GameObject):
 class Level1(Level):
 
     def __init__(self):
-        self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        test_obstacles = [
+        self.surfaces = [
             game_objects.Obstacle((10, 550), (780, 30)),
-            game_objects.Obstacle((100, 100), (30, 400))
+            game_objects.Obstacle((100, 100), (30, 400)),
+            game_objects.ImageObstacle((0, 0), game_objects.img.GROUND)
         ]
-
-        for test_obstacle in test_obstacles:
-            test_obstacle.draw(self.surface)
 
         super().__init__()
 

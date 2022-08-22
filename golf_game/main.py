@@ -84,7 +84,7 @@ def main():
                     ball.calculate_velocity_data(dist, alpha)
 
         if is_shooting is False:
-            ball.update(levels_list[crnt_level])
+            ball.update(obstacle_list=levels_list[crnt_level])
 
         draw(win, bg_surface, game_surface, levels_list[crnt_level], ball, is_shooting_line)
 

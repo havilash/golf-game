@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 
 from golf_game.constants import *
 from golf_game.utils import *
@@ -62,9 +63,16 @@ class Detector(GameObject):
 
 
 class Obstacle(GameObject):
-    bounciness = 0
 
     def __init__(self, pos, size):
         self.size = size
         self.surface = pygame.Surface(self.size)
+        super().__init__(pos)
+
+
+class ImageObstacle(GameObject):
+    def __init__(self, pos, img, bounciness=None, friction=None):
+        self.surface = img
+        self.bounciness = bounciness if bounciness else self.bounciness
+        self.friction = friction if friction else self.friction
         super().__init__(pos)
