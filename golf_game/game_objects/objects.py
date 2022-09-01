@@ -17,7 +17,6 @@ class GameObject:
         self.x, self.y = pos
 
         self.mask = pygame.mask.from_surface(self.surface)
-        self.rect = self.surface.get_rect()
 
     def draw(self, win: pygame.Surface):
         win.blit(self.surface, (self.x, self.y))
@@ -63,16 +62,22 @@ class Detector(GameObject):
 
 
 class Obstacle(GameObject):
+    color = (50, 50, 50)
 
-    def __init__(self, pos, size):
+    def __init__(self, pos, size, color=color, bounciness=None, friction=None):
         self.size = size
+        self.color = color
+        self.bounciness = bounciness
+        self.friction = friction
+
         self.surface = pygame.Surface(self.size)
+        self.surface.fill(self.color)
         super().__init__(pos)
 
 
 class ImageObstacle(GameObject):
     def __init__(self, pos, img, bounciness=None, friction=None):
         self.surface = img
-        self.bounciness = bounciness if bounciness else self.bounciness
-        self.friction = friction if friction else self.friction
+        self.bounciness = bounciness
+        self.friction = friction
         super().__init__(pos)

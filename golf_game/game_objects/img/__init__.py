@@ -1,8 +1,5 @@
-import pygame
 import os
+import pygame
 
-from golf_game.utils import *
-
-GROUND = load_image(os.path.join("game_objects", "img", "ground.png"))
-GROUND_SMALL = load_image(os.path.join("game_objects", "img", "ground_small.png"))
-WALL = load_image(os.path.join("game_objects", "img", "wall.png"))
+START_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join("game_objects", "img", "start.png")), (120, 105))
+END_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join("game_objects", "img", "end.png")), (120, 105))

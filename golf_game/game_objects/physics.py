@@ -22,7 +22,7 @@ class Physic(objects.GameObject):
         }
 
         self.detectors = [
-            objects.Detector((0, 0)) for i in range(4)  # divisible by 4
+            objects.Detector((0, 0)) for i in range(4)
         ]
         self.detector_positions = objects.Detector.find_detector_positions(self, len(self.detectors))
 
@@ -95,11 +95,19 @@ class Physic(objects.GameObject):
             "vy": v * math.sin(math.radians(a)),  # velocity y
         }
 
+    def calculate_initial_velocity(self):
+        vx = self.vel["vx"]
+        vy = self.vel["vy"]
+
+        v = math.sqrt(math.pow(vx, 2) + math.pow(vy, 2))
+        return v
+
 
 class Ball(Physic):
     size = (12, 12)  # a golf ball is 23.5 times smaller than a meter
     surface = pygame.Surface(size, pygame.SRCALPHA, 32)
-    pygame.draw.circle(surface, "red", (size[0] / 2, size[1] / 2), size[0] / 2)
+    pygame.draw.circle(surface, "black", (size[0] / 2, size[1] / 2), size[0] / 2)
+    pygame.draw.circle(surface, "white", (size[0] / 2, size[1] / 2), size[0] / 2 - 1)
 
     def shoot(self, v, a):
         self.calculate_velocity_data(v, a)
