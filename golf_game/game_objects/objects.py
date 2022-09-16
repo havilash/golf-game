@@ -17,6 +17,7 @@ class GameObject:
         self.x, self.y = pos
 
         self.mask = pygame.mask.from_surface(self.surface)
+        self.rect = self.surface.get_rect()
 
     def draw(self, win: pygame.Surface):
         win.blit(self.surface, (self.x, self.y))
@@ -28,9 +29,10 @@ class GameObject:
 
 class Detector(GameObject):
     size = (1, 1)
-    surface = pygame.Surface(size)
 
-    def __init__(self, pos):
+    def __init__(self, pos, size=None):
+        if size is not None: self.size = size
+        self.surface = pygame.Surface(self.size)
         super().__init__(pos)
 
     def collide(self, obstacle):

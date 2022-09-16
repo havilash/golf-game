@@ -26,14 +26,18 @@ def main_menu():
     win = pygame.display.set_mode(WIN_SIZE)
     pygame.display.set_caption("Golf Game")
 
-    texts = [
-        Text((WIN_SIZE[0] / 2, WIN_SIZE[1] / 4), "Golf Game", 100, font=FONT)
-    ]
+    texts = [Text((WIN_SIZE[0] / 2, WIN_SIZE[1] / 4), "Golf Game", 100, font=FONT)]
     buttons = {
-        "start": Button((WIN_SIZE[0] / 2 - 200 / 2, WIN_SIZE[1] / 2 - 50 / 2), (200, 50),
-                        text="Start", font=FONT, font_color=FONT_COLOR,
-                        color=BG_COLOR,
-                        hover_color=(150, 100, 255), func=game.game)
+        "start": Button(
+            (WIN_SIZE[0] / 2 - 200 / 2, WIN_SIZE[1] / 2 - 50 / 2),
+            (200, 50),
+            text="Start",
+            font=FONT,
+            font_color=FONT_COLOR,
+            color=BG_COLOR,
+            hover_color=(150, 100, 255),
+            func=game.game,
+        )
     }
 
     is_running = True
