@@ -25,7 +25,10 @@ class Text:
     def draw(self, win):
         self.surface = self.font.render(self.text, False, self.color)
         self.font_size = self.surface.get_size()
-        self.pos = self.center_pos[0] - self.font_size[0] / 2, self.center_pos[1] - self.font_size[1] / 2
+        self.pos = (
+            self.center_pos[0] - self.font_size[0] / 2,
+            self.center_pos[1] - self.font_size[1] / 2,
+        )
         self.x, self.y = self.pos
 
         win.blit(self.surface, self.pos)
@@ -37,8 +40,19 @@ class Text:
 class Button:
     color = "black"
 
-    def __init__(self, pos, size, color=color, hover_color=color, text=None, text_color="white", font="helvetica",
-                 font_size=None, font_color=None, func=None):
+    def __init__(
+        self,
+        pos,
+        size,
+        color=color,
+        hover_color=color,
+        text=None,
+        text_color="white",
+        font="helvetica",
+        font_size=None,
+        font_color=None,
+        func=None,
+    ):
         self.pos = pos
         self.size = size
         self.color = color
@@ -50,8 +64,14 @@ class Button:
         self.font_color = font_color
         self.func = func
 
-        if text: self.text_surface = Text((self.size[0] / 2 + self.pos[0], self.size[1] / 2 + self.pos[1]), self.text,
-                                          self.font_size, color=self.font_color, font=self.font)
+        if text:
+            self.text_surface = Text(
+                (self.size[0] / 2 + self.pos[0], self.size[1] / 2 + self.pos[1]),
+                self.text,
+                self.font_size,
+                color=self.font_color,
+                font=self.font,
+            )
 
         self.crnt_color = color
         self.surface = pygame.Rect(*self.pos, *self.size)

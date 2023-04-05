@@ -1,3 +1,0 @@
-[console_scripts]
-golf-game = golf_game.main:main
-

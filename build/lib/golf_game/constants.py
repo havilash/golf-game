@@ -1,4 +1,0 @@
-FPS = 6000
-
-WIN_SIZE = (800, 600)
-LEVELS = 3
