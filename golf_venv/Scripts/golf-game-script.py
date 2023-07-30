@@ -1,10 +1,10 @@
 #!C:\Users\havil\Documents\GitHub\Golf-Game\golf_venv\Scripts\python.exe
-# EASY-INSTALL-ENTRY-SCRIPT: 'golf-game','console_scripts','golf-game'
+# EASY-INSTALL-ENTRY-SCRIPT: 'golf-game==0.0.2','console_scripts','golf-game'
 import re
 import sys
 
 # for compatibility with easy_install; see #2198
-__requires__ = 'golf-game'
+__requires__ = 'golf-game==0.0.2'
 
 try:
     from importlib.metadata import distribution
@@ -30,4 +30,4 @@ globals().setdefault('load_entry_point', importlib_load_entry_point)
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-    sys.exit(load_entry_point('golf-game', 'console_scripts', 'golf-game')())
+    sys.exit(load_entry_point('golf-game==0.0.2', 'console_scripts', 'golf-game')())
